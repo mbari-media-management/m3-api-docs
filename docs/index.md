@@ -17,4 +17,3 @@ const ui = SwaggerUIBundle({
 
 Trying this out
 
-<div id="swagger-ui">Hello</div>
