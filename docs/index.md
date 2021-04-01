@@ -14,3 +14,5 @@ const ui = SwaggerUIBundle({
 </script>
 
 # M3 API Documentation
+
+<div id="swagger-ui"></div>
