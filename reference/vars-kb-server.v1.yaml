@@ -1,0 +1,600 @@
+openapi: 3.0.0
+info:
+  title: vars-kb-server
+  version: '1.0'
+  contact:
+    name: Brian Schlining
+    url: 'https://www.mbari.org/schlining-brian/'
+    email: brian@mbari.org
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/'
+  description: REST API for retrieving information from the VARS Knowledgebase Server
+  termsOfService: TBD
+servers:
+  - url: 'http://dsg.mbari.org/kb/v1'
+    description: MBARI's Deep Sea Guide
+paths:
+  /concept:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              examples:
+                example-1:
+                  value:
+                    - string
+      operationId: get-all-concept-names
+      description: Retrieve all concept names (including alternate names)
+  '/concept/parent/{name}':
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+        description: The concept name
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Concept'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      operationId: get-concept-parent
+      description: Return the parent concept for the given name
+  '/concept/children/{name}':
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+        description: The concept name
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Concept'
+              examples:
+                example-1:
+                  value:
+                    name: string
+                    alternateNames:
+                      - string
+                    rank: string
+                    media:
+                      - url: string
+                        caption: string
+                        credit: string
+                        mimeType: string
+                        isPrimary: true
+                    descriptors:
+                      - linkName: string
+                        toConcept: string
+                        linkValue: string
+                    author: string
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      operationId: get-concept-children
+      description: Return the children for the given concept name
+  '/concept/{name}':
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+        description: The concept name
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Concept'
+        '404':
+          description: Not Found
+      operationId: get-concept
+      description: Return the data for the given concept name
+  /concept/root:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Concept'
+              examples: {}
+      operationId: get-concept-root
+      description: Returns the root concept of the knowledgebase
+  '/concept/find/{glob}':
+    parameters:
+      - schema:
+          type: string
+        name: glob
+        in: path
+        required: true
+        description: A term or part of a name
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Concept'
+      operationId: get-concept-by-glob
+      description: Find concepts whos name or alternative names contains the provided characters. (e.g. red)
+  '/dsg/images/representative/{name}':
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+        description: The concept namge
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NamedMedia'
+      operationId: get-dsg-representative-name
+      description: Returns a random sample of images for this node from it's child concepts
+      parameters:
+        - schema:
+            type: integer
+            default: 10
+          in: query
+          name: limit
+          description: The number of imges to return
+  '/phylogeny/up/{name}':
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+        description: The concept name
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaxaNode'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+      operationId: get-phylogeny-up
+      description: Returns the hierachical phylogeny from the root of the KB down to the named concept
+  '/phylogeny/down/{name}':
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+        description: The concept name
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaxaNode'
+              examples:
+                small-example:
+                  value:
+                    name: Agalmatidae
+                    alternativeNames:
+                      - Agalmidae
+                    rank: family
+                    children:
+                      - name: Lychnagalma
+                        rank: genus
+                        children:
+                          - name: Lychnagalma utricularia
+                            rank: species
+                      - name: Nanomia
+                        rank: genus
+                        children:
+                          - name: Nanomia bijuga
+                            rank: species
+                      - name: Frillagalma
+                        rank: genus
+                        children:
+                          - name: Frillagalma vityazi
+                            rank: species
+                      - name: Halistemma
+                        rank: genus
+                        children:
+                          - name: Halistemma rubrum
+                            rank: species
+                      - name: Nanomia 2
+                        alternativeNames:
+                          - nanomia with full gastrozooid
+                        rank: genus
+                      - name: Agalma
+                        rank: genus
+                      - name: Marrus
+                        rank: genus
+                        children:
+                          - name: Marrus claudanielis
+                            rank: species
+                          - name: Marrus orthocanna
+                            rank: species
+                      - name: Rudjakovia
+                        rank: genus
+                        children:
+                          - name: Rudjakovia plicata
+                            rank: species
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+      operationId: get-phylogeny-down-name
+      description: Returns the hierarchical phylogeny tree from the named concept down through all it's descendants
+  '/phylogeny/basic/{name}':
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimpleConcept'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+      operationId: get-phylogeny-basic-name
+      description: 'Get a flattened taxa branch from the root of the knowledgebase down to the named concept. They are in ordered; i.e. the top node is the kb root, the bottom node is the named concept'
+  '/phylogeny/taxa/{name}':
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimpleConcept'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+      operationId: get-phylogeny-taxa-name
+      description: Get a list of all concepts that includes the named concept and all of it's descendants. They are alphabetically ordered by concept name
+components:
+  schemas:
+    Concept:
+      description: ''
+      type: object
+      x-examples:
+        detailed-example:
+          name: Pandalus platyceros
+          alternateNames:
+            - spot prawn
+            - spot shrimp
+          rank: species
+          media:
+            - url: 'http://dsg.mbari.org/images/dsg/external/Arthropoda/Pandalus_platyceros_02.jpg'
+              caption: ''
+              credit: 'MBARI 2001: V2013-03'
+              mimeType: image/jpg
+              isPrimary: false
+            - url: 'http://dsg.mbari.org/images/dsg/external/Arthropoda/Pandalus_platyceros_01.jpg'
+              caption: ''
+              credit: 'MBARI 2001: V2013-03'
+              mimeType: image/jpg
+              isPrimary: true
+          descriptors:
+            - linkName: dsg-depth-distribution
+              toConcept: self
+              linkValue: 4 - 487 m
+            - linkName: dsg-range
+              toConcept: self
+              linkValue: 'Unalaska, Alaska to San Diego, California'
+            - linkName: dsg-size
+              toConcept: self
+              linkValue: to 30 cm
+            - linkName: dsg-reproduction
+              toConcept: self
+              linkValue: 'Off the coast of central California, the majority of gravid females are found September through March.'
+            - linkName: dsg-reference
+              toConcept: self
+              linkValue: 'Butler, T.H. (1970). Synopsis of biological data on the prawn Pandalus platyceros Brandt, 1851. FAO Fisheries Report, 95: 1289–1315.'
+            - linkName: dsg-habitat
+              toConcept: self
+              linkValue: Benthic.
+            - linkName: dsg-reference
+              toConcept: self
+              linkValue: 'Butler, T.H. (1964). Growth, reproduction and distribution of Pandalid shrimp in British Columbia. Journal of the Fisheries Research Board of Canada, 21: 1403-1452. https://doi.org/10.1139/f64-121'
+            - linkName: dsg-reference
+              toConcept: self
+              linkValue: 'Schlining, K.L. (1999). The spot prawn (Pandalus platyceros Brandt 1851) resource in Carmel Submarine Canyon, California: Aspects of fisheries and habitat associations. California State University, Stanislaus. Masters.'
+          author: 'Brandt, 1851'
+        minimal-example:
+          name: object
+          alternateNames:
+            - root
+          media: []
+          descriptors: []
+      properties:
+        name:
+          type: string
+          minLength: 1
+        alternateNames:
+          type: array
+          items:
+            type: string
+        rank:
+          type: string
+          minLength: 1
+        media:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Media'
+        descriptors:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Descriptor'
+        author:
+          type: string
+          minLength: 1
+      required:
+        - name
+    TaxaNode:
+      description: ''
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        alternativeNames:
+          type: array
+          items:
+            type: object
+        rank:
+          type: string
+          minLength: 1
+        children:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/TaxaNode'
+      required:
+        - name
+        - alternativeNames
+        - rank
+        - children
+      x-examples:
+        taxa-branch:
+          name: object
+          alternativeNames:
+            - root
+          children:
+            - name: physical object
+              alternativeNames:
+                - physical-object
+              children:
+                - name: marine organism
+                  alternativeNames:
+                    - marine-organism
+                  children:
+                    - name: Eukaryota
+                      rank: superkingdom
+                      children:
+                        - name: Animalia
+                          alternativeNames:
+                            - metazoa
+                          rank: kingdom
+                          children:
+                            - name: Cnidaria
+                              alternativeNames:
+                                - cnidarian
+                              rank: phylum
+                              children:
+                                - name: Hydrozoa
+                                  alternativeNames:
+                                    - hydrozoan
+                                    - hydroid
+                                    - hydralike animal
+                                  rank: superclass
+                                  children:
+                                    - name: Hydroidolina
+                                      rank: subclass
+                                      children:
+                                        - name: Siphonophorae
+                                          alternativeNames:
+                                            - siphonophore
+                                            - Siphonophora
+                                          rank: order
+                                          children:
+                                            - name: Physonectae
+                                              alternativeNames:
+                                                - Physophorae
+                                                - physonect
+                                              rank: suborder
+                                              children:
+                                                - name: Agalmatidae
+                                                  alternativeNames:
+                                                    - Agalmidae
+                                                  rank: family
+                                                  children:
+                                                    - name: Nanomia
+                                                      rank: genus
+    Message:
+      description: ''
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+        code:
+          type: number
+      required:
+        - message
+        - code
+      x-examples:
+        example:
+          message: No concept named foo was found
+          code: 404
+    SimpleConcept:
+      description: ''
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        rank:
+          type: string
+          minLength: 1
+      required:
+        - name
+    Descriptor:
+      description: ''
+      type: object
+      properties:
+        linkName:
+          type: string
+          minLength: 1
+        toConcept:
+          type: string
+          minLength: 1
+        linkValue:
+          type: string
+          minLength: 1
+      required:
+        - linkName
+        - toConcept
+        - linkValue
+      x-examples:
+        example-1:
+          linkName: dsg-depth-distribution
+          toConcept: self
+          linkValue: 4 - 487 m
+    NamedMedia:
+      description: ''
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        url:
+          type: string
+          minLength: 1
+        caption:
+          type: string
+        credit:
+          type: string
+          minLength: 1
+        mimeType:
+          type: string
+          minLength: 1
+        isPrimary:
+          type: boolean
+      required:
+        - name
+        - url
+        - mimeType
+    Media:
+      description: ''
+      type: object
+      properties:
+        url:
+          type: string
+          minLength: 1
+        caption:
+          type: string
+        credit:
+          type: string
+          minLength: 1
+        mimeType:
+          type: string
+          minLength: 1
+        isPrimary:
+          type: boolean
+      required:
+        - url
+        - mimeType
+  securitySchemes: {}
