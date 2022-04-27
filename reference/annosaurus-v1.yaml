@@ -110,6 +110,8 @@ paths:
           description: No matching Association found
       tags:
         - Association
+      security:
+        - BearerAuth: []
     delete:
       summary: Delete an Association
       description: Delete an Association
@@ -121,13 +123,15 @@ paths:
           description: Failed. No matching Association found
       tags:
         - Association
+      security:
+        - BearerAuth: []
   '/associations/{video_reference_uuid}/{link_name}':
     get:
       tags:
         - Association
       summary: Find all usages of a specific association in a video
       operationId: findAssociationsByVideoReferenceAndLinkName
-      description: Fina all usages of a specific association in a video by its link name and Video Reference UUID
+      description: Find all usages of a specific association in a video by its link name and Video Reference UUID
       parameters:
         - in: path
           name: video_reference_uuid
@@ -332,6 +336,8 @@ paths:
           description: 'Updating Annotations in bulk only accepts JSON body (Content-Type: application/json)'
       tags:
         - Annotation
+      security:
+        - BearerAuth: []
   '/annotations/videoreference/{uuid}':
     parameters:
       - in: path
@@ -459,6 +465,8 @@ paths:
           description: No matched Image Reference
       tags:
         - ImageReference
+      security:
+        - BearerAuth: []
     delete:
       summary: Delete an Image Reference
       description: Delete an Image Reference
@@ -470,6 +478,8 @@ paths:
           description: No matched Image Reference
       tags:
         - ImageReference
+      security:
+        - BearerAuth: []
   /images:
     post:
       tags:
@@ -1188,6 +1198,8 @@ paths:
           description: No matching observation
       tags:
         - Observation
+      security:
+        - BearerAuth: []
   /associations:
     post:
       summary: Create a new Association
@@ -1225,6 +1237,8 @@ paths:
           description: Please provide an Observation UUID and a link name
       tags:
         - Association
+      security:
+        - BearerAuth: []
   /associations/bulk:
     put:
       summary: Create Associations in bulk
@@ -1250,6 +1264,8 @@ paths:
           description: 'Bulk Association creation only accepts JSON (i.e. Content-Type: application/json)'
       tags:
         - Association
+      security:
+        - BearerAuth: []
   /associations/delete:
     post:
       summary: Delete Associations in bulk
@@ -1272,6 +1288,8 @@ paths:
           description: 'Bulk Association deletion only accepts JSON (i.e. Content-Type: application/json)'
       tags:
         - Association
+      security:
+        - BearerAuth: []
   '/associations/toconcept/count/{concept}':
     parameters:
       - in: path
@@ -1324,6 +1342,8 @@ paths:
           description: Please provide the concept being replaced and the replacement concept
       tags:
         - Association
+      security:
+        - BearerAuth: []
   /associations/conceptassociations:
     post:
       summary: Find by concept Association request
@@ -1419,6 +1439,8 @@ paths:
           description: 'video_reference_uuid, mission_id, and platform_name are required'
       tags:
         - VideoReference
+      security:
+        - BearerAuth: []
   '/videoreferences/{uuid}':
     parameters:
       - in: path
@@ -1473,6 +1495,8 @@ paths:
           description: No matching Cached Video Reference found
       tags:
         - VideoReference
+      security:
+        - BearerAuth: []
     delete:
       summary: Delete a Cached Video Reference
       description: Delete a Cached Video Reference
@@ -1486,6 +1510,8 @@ paths:
           description: No matching Cached Video Reference found
       tags:
         - VideoReference
+      security:
+        - BearerAuth: []
   /videoreferences/videoreferences:
     get:
       summary: Find all Video Reference UUIDs
@@ -1855,6 +1881,8 @@ paths:
           description: 'Bulk update Annotations recorded timestamp only accepts JSON body (Content-Type: application/json)'
       tags:
         - Annotation
+      security:
+        - BearerAuth: []
   /ancillarydata:
     post:
       summary: Create a new Cached Ancillary Datum
@@ -1932,6 +1960,8 @@ paths:
                 $ref: '#/components/schemas/CachedAncillaryDatum'
       tags:
         - AncillaryDatum
+      security:
+        - BearerAuth: []
   '/ancillarydata/{uuid}':
     parameters:
       - in: path
@@ -2030,6 +2060,8 @@ paths:
           description: No matching Cached Ancillary Datum found
       tags:
         - AncillaryDatum
+      security:
+        - BearerAuth: []
   '/ancillarydata/videoreference/{uuid}':
     parameters:
       - in: path
@@ -2073,6 +2105,8 @@ paths:
           description: A Video Reference UUID is required
       tags:
         - AncillaryDatum
+      security:
+        - BearerAuth: []
   '/ancillarydata/imagedmoment/{uuid}':
     parameters:
       - in: path
@@ -2148,6 +2182,8 @@ paths:
                   $ref: '#/components/schemas/CachedAncillaryDatum'
       tags:
         - AncillaryDatum
+      security:
+        - BearerAuth: []
   '/ancillarydata/merge/{uuid}':
     parameters:
       - in: path
@@ -2180,6 +2216,8 @@ paths:
           description: 'Merging Cached Ancillary Data into a video only accepts a JSON body (i.e. Content-Type: application/json)'
       tags:
         - AncillaryDatum
+      security:
+        - BearerAuth: []
   /health:
     get:
       summary: Get health status
