@@ -117,7 +117,7 @@ paths:
       description: Delete an Association
       operationId: deleteAssociation
       responses:
-        '201':
+        '204':
           description: Deleted
         '412':
           description: Failed. No matching Association found
@@ -472,8 +472,8 @@ paths:
       description: Delete an Image Reference
       operationId: deleteImageReference
       responses:
-        '201':
-          description: Successfully deleted
+        '204':
+          description: Deleted
         '404':
           description: No matched Image Reference
       tags:
@@ -1103,9 +1103,9 @@ paths:
       tags:
         - Observation
         - Annotation
-      summary: Delete a single observation
-      operationId: deleteObservationByUuid
-      description: Delete a single observation by its UUID
+      summary: Delete Observation
+      operationId: deleteObservation
+      description: Delete a single Observation by its UUID
       security:
         - BearerAuth: []
       parameters:
@@ -1117,12 +1117,8 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
-          description: true or false
-          content:
-            text/plain:
-              schema:
-                type: boolean
+        '204':
+          description: Deleted
         '400':
           description: Please provide a UUID
         '404':
@@ -1787,7 +1783,7 @@ paths:
       description: Delete a Cached Video Reference
       operationId: deleteCachedVideoReference
       responses:
-        '201':
+        '204':
           description: Deleted
         '400':
           description: A UUID paramter is required
