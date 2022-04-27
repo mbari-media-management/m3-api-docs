@@ -888,20 +888,20 @@ paths:
         required: true
         description: Concept name
   '/imagedmoments/{uuid}':
+    parameters:
+      - in: path
+        name: uuid
+        description: The imaged moment UUID
+        required: true
+        schema:
+          type: string
+          format: uuid
     get:
       tags:
         - ImagedMoment
       summary: Retrieve a single imaged moment by its UUID
       operationId: findImagedMomentByUuid
       description: Retrieve a single imaged moment by its primary key
-      parameters:
-        - in: path
-          name: uuid
-          description: The imaged moment UUID
-          required: true
-          schema:
-            type: string
-            format: uuid
       responses:
         '200':
           description: the imaged moment
@@ -913,6 +913,61 @@ paths:
           description: Please provide a UUID
         '404':
           description: No match was found
+    put:
+      summary: Update Imaged Moment
+      operationId: updateImagedMoment
+      responses:
+        '200':
+          description: Updated Imaged Moment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImagedMoment'
+        '400':
+          description: Please provide a UUID
+      tags:
+        - ImagedMoment
+      description: Update an Imaged Moment
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: timecode
+          description: Tape timecode
+        - schema:
+            type: integer
+          in: query
+          name: elapsed_time_millis
+          description: Elapsed time in milliseconds
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: recorded_timestamp
+          description: Recorded timestamp
+        - schema:
+            type: string
+            format: uuid
+          in: query
+          name: video_reference_uuid
+          description: Video Reference UUID
+      security:
+        - BearerAuth: []
+    delete:
+      summary: Delete Imaged Moment
+      operationId: deleteImagedMoment
+      responses:
+        '204':
+          description: Deleted
+        '400':
+          description: Please provide the UUID of the Imaged Moment
+        '404':
+          description: No matched Imaged Moment found
+      description: Delete an Imaged Moment
+      security:
+        - BearerAuth: []
+      tags:
+        - ImagedMoment
   '/imagedmoments/modified/{start}/{end}':
     get:
       tags:
@@ -2323,7 +2378,7 @@ paths:
     delete:
       summary: Delete all Cached Ancillary Data for a video
       description: Delete all Cached Ancillary Data for a video
-      operationId: deleteCachedAncillaryDataByVideoReferenceUuid
+      operationId: deleteCachedAncillaryDataByVideoReference
       responses:
         '200':
           description: Count of deleted Cached Ancillary Data
@@ -2527,6 +2582,24 @@ paths:
         in: path
         required: true
         description: Video Reference UUID
+    delete:
+      summary: Delete Imaged Moments by Video Reference
+      operationId: deleteImagedMomentsByVideoReference
+      responses:
+        '200':
+          description: Count of deleted Imaged Moments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservationCount'
+        '400':
+          description: Please provide a Video Reference UUID
+      description: Delete all Imaged Moments for a given Video Reference
+      security:
+        - BearerAuth: []
+      parameters: []
+      tags:
+        - ImagedMoment
   /imagedmoments/windowrequest:
     post:
       summary: Find Imaged Moments by window request
@@ -2562,6 +2635,122 @@ paths:
             schema:
               $ref: '#/components/schemas/WindowRequest'
         description: Window request
+  '/imagedmoments/imagereference/{uuid}':
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: uuid
+        in: path
+        required: true
+        description: Image Reference UUID
+    get:
+      summary: Find Imaged Moment by Image Reference
+      tags:
+        - ImagedMoment
+      responses:
+        '200':
+          description: Matched Imaged Moment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImagedMoment'
+        '400':
+          description: Please provide an Image Reference UUID
+        '404':
+          description: No matching Image Reference found
+      operationId: findImagedMomentByImageReference
+      description: Find an Imaged Moment by a given Image Reference
+  '/imagedmoments/observation/{uuid}':
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: uuid
+        in: path
+        required: true
+        description: Observation UUID
+    get:
+      summary: Find Imaged Moment by Observation
+      tags:
+        - ImagedMoment
+      responses:
+        '200':
+          description: Matched Imaged Moment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImagedMoment'
+        '400':
+          description: Please provide an Observation UUID
+        '404':
+          description: No matching Observation found
+      operationId: findImagedMomentByObservation
+      description: Find an Imaged Moment by a given Observation
+  '/imagedmoments/newtime/{uuid}/{time}':
+    parameters:
+      - schema:
+          type: string
+        name: uuid
+        in: path
+        required: true
+        description: Video Reference UUID
+      - schema:
+          type: string
+          format: date-time
+        name: time
+        in: path
+        required: true
+        description: New start time
+    put:
+      summary: Update Imaged Moment timestamps for a Video Reference
+      tags:
+        - ImagedMoment
+      responses:
+        '200':
+          description: Updated Imaged Moments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImagedMoment'
+      operationId: updateImagedMomentRecordedTimestamps
+      description: 'Update the recorded timestamps for all Imaged Moments for a given Video Reference, given a new start timestamp'
+      security:
+        - BearerAuth: []
+  /imagedmoments/tapetime:
+    put:
+      summary: Bulk update Annotation timestamps
+      tags:
+        - ImagedMoment
+      responses:
+        '200':
+          description: Count of Annotations and timestamps updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  annotation_count:
+                    type: integer
+                    description: Annotation count
+                  timestamps_updated:
+                    type: integer
+                    description: Number of timestamps updated
+        '400':
+          description: JSON body required
+      operationId: updateAnnotationTimestampsBulk
+      description: Update Annotation timestamps in bulk. Each Annotation should have the observation\_uuid and recorded\_timestamp fields
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Annotation'
 components:
   securitySchemes:
     BearerAuth:
