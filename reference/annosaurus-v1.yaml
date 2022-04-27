@@ -692,13 +692,208 @@ paths:
                   $ref: '#/components/schemas/ImagedMoment'
         '404':
           description: No match was found
+  /imagedmoments/counts:
+    get:
+      tags:
+        - ImagedMoment
+      summary: Count Imaged Moments for all Video References
+      operationId: countImagedMoments
+      description: Count Imaged Moments for all Video References
+      parameters: []
+      responses:
+        '200':
+          description: Imaged Moment counts by Video Reference
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ObservationCount'
+    parameters: []
+  '/imagedmoments/videoreference/chunked/{uuid}':
+    get:
+      tags:
+        - ImagedMoment
+      summary: Find Imaged Moments by Video Reference
+      operationId: findChunkedImagedMomentsByVideoReference
+      description: 'Find Imaged Moments for a given Video Reference, chunked'
+      parameters:
+        - in: query
+          name: limit
+          description: The number of items to return
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          description: The number of items to skip before starting to collect the result set
+          schema:
+            type: integer
+        - schema:
+            type: integer
+          in: query
+          name: pagesize
+          description: 'The page size (default: 50)'
+        - schema:
+            type: integer
+          in: query
+          name: timeout
+          description: 'The request timeout, in seconds (default: 20)'
+      responses:
+        '200':
+          description: search results found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImagedMoment'
+        '400':
+          description: Please provide a Video Reference UUID
+        '404':
+          description: No match was found
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: uuid
+        in: path
+        required: true
+        description: Video Reference UUID
+  '/imagedmoments/concept/{name}':
+    get:
+      tags:
+        - ImagedMoment
+      summary: Find Imaged Moments by observed concept
+      operationId: findImagedMomentsByObservedConcept
+      description: Find all Imaged Moments with one or more Observations of a given concept
+      parameters:
+        - in: query
+          name: limit
+          description: The number of items to return
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          description: The number of items to skip before starting to collect the result set
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: search results found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImagedMoment'
+        '400':
+          description: Please provide a concept name
+        '404':
+          description: No match was found
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+        description: Concept name
+  '/imagedmoments/concept/count/{name}':
+    get:
+      tags:
+        - ImagedMoment
+      summary: Find Imaged Moments by observed concept
+      operationId: countImagedMomentsByObservedConcept
+      description: Count all Imaged Moments with one or more Observations of a given concept
+      parameters: []
+      responses:
+        '200':
+          description: Imaged Moment count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptCount'
+        '400':
+          description: Please provide a concept name
+        '404':
+          description: No match was found
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+        description: Concept name
+  '/imagedmoments/concept/images/{name}':
+    get:
+      tags:
+        - ImagedMoment
+      summary: Find Imaged Moments by observed concept
+      operationId: findImagedMomentsWithImagesByObservedConcept
+      description: 'Find all Imaged Moments with one or more Observations of a given concept, excluding Imaged Moments without any Image References'
+      parameters:
+        - in: query
+          name: limit
+          description: The number of items to return
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          description: The number of items to skip before starting to collect the result set
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: search results found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImagedMoment'
+        '400':
+          description: Please provide a concept name
+        '404':
+          description: No match was found
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+        description: Concept name
+  '/imagedmoments/concept/images/count/{name}':
+    get:
+      tags:
+        - ImagedMoment
+      summary: Find Imaged Moments by observed concept
+      operationId: countImagedMomentsWithImagesByObservedConcept
+      description: 'Count all Imaged Moments with one or more Observations of a given concept, excluding Imaged Moments without any Image References'
+      parameters: []
+      responses:
+        '200':
+          description: Imaged Moment count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptCount'
+        '400':
+          description: Please provide a concept name
+        '404':
+          description: No match was found
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+        description: Concept name
   '/imagedmoments/{uuid}':
     get:
       tags:
         - ImagedMoment
       summary: Retrieve a single imaged moment by its UUID
       operationId: findImagedMomentByUuid
-      description: Retreive a single imaged moment by its primary key
+      description: Retrieve a single imaged moment by its primary key
       parameters:
         - in: path
           name: uuid
@@ -714,6 +909,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImagedMoment'
+        '400':
+          description: Please provide a UUID
         '404':
           description: No match was found
   '/imagedmoments/modified/{start}/{end}':
@@ -724,20 +921,6 @@ paths:
       operationId: findImagedMomentsBetweenDates
       description: Find all imagedmoments that habe annotations that were created or modified between two dates
       parameters:
-        - in: path
-          name: start
-          description: 'The start (inclusive) date. e.g 2018-04-30T01:23:45Z'
-          required: true
-          schema:
-            type: string
-            format: iso8601
-        - in: path
-          name: end
-          description: 'The end (inclusive) date. e.g 2018-04-30T01:23:45Z'
-          required: true
-          schema:
-            type: string
-            format: iso8601
         - in: query
           name: limit
           description: The number of items to return (default is 1000)
@@ -757,28 +940,60 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ImagedMoment'
+    parameters:
+      - schema:
+          type: string
+          format: date-time
+        name: start
+        in: path
+        required: true
+        description: Start date
+      - schema:
+          type: string
+          format: date-time
+        name: end
+        in: path
+        required: true
+        description: End date
+  '/imagedmoments/videoreference/modified/{uuid}/{date}':
+    get:
+      tags:
+        - ImagedMoment
+      summary: Retrieve Imaged Moments modified before date by Video Reference
+      operationId: findImagedMomentsBeforeDateByVideoReference
+      description: 'Find all Imaged Moments that have Annotations that were created or modified before a given date, for a given Video Reference'
+      responses:
+        '200':
+          description: Matched Imaged Moments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImagedMoment'
+        '400':
+          description: 'Please provide a Video Reference UUID and a date (yyyy-mm-ddThh:mm:ssZ)'
+    parameters:
+      - schema:
+          type: string
+          format: date-time
+        name: date
+        in: path
+        required: true
+        description: Modified date
+      - schema:
+          type: string
+        name: uuid
+        in: path
+        required: true
+        description: Video Reference UUID
   '/imagedmoments/modified/count/{start}/{end}':
     get:
       tags:
         - ImagedMoment
       summary: Retrieve a count of imagedmoments that have been modified between dates
       operationId: countImagedMomentsBetweenDates
-      description: Count all imagedmoments that habee annotations that were created or modified between two dates
-      parameters:
-        - in: path
-          name: start
-          description: 'The start (inclusive) date. e.g 2018-04-30T01:23:45Z'
-          required: true
-          schema:
-            type: string
-            format: iso8601
-        - in: path
-          name: end
-          description: 'The end (inclusive) date. e.g 2018-04-30T01:23:45Z'
-          required: true
-          schema:
-            type: string
-            format: iso8601
+      description: Count all imagedmoments that have annotations that were created or modified between two dates
       responses:
         '200':
           description: imagedmoments between two dates
@@ -788,6 +1003,21 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ImagedMomentCount'
+    parameters:
+      - schema:
+          type: string
+          format: date-time
+        name: start
+        in: path
+        required: true
+        description: Start date
+      - schema:
+          type: string
+          format: date-time
+        name: end
+        in: path
+        required: true
+        description: End date
   '/observations/{uuid}':
     get:
       tags:
@@ -2232,6 +2462,106 @@ paths:
                 $ref: '#/components/schemas/HealthStatus'
       tags:
         - Health
+  /imagedmoments/videoreference:
+    get:
+      summary: Find all Video Reference UUIDs with Imaged Moments
+      tags:
+        - ImagedMoment
+      responses:
+        '200':
+          description: Video Reference UUIDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+      operationId: findAllVideoReferenceUUIDsWithImagedMoments
+      description: Find all Video Reference UUIDs with Imaged Moments
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: limit
+          description: Max number of results
+        - schema:
+            type: integer
+          in: query
+          name: offset
+          description: Number of results to skip from the beginning
+  '/imagedmoments/videoreference/{uuid}':
+    get:
+      summary: Find all Video Reference UUIDs
+      tags:
+        - ImagedMoment
+      responses:
+        '200':
+          description: Matched Imaged Moments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImagedMoment'
+        '400':
+          description: Please provide a Video Reference UUID
+      operationId: findImagedMomentsByVideoReferenceAlt
+      description: Find Imaged Moments for a given Video Reference
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: limit
+          description: Max number of results
+        - schema:
+            type: integer
+          in: query
+          name: offset
+          description: Number of results to skip from the beginning
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: uuid
+        in: path
+        required: true
+        description: Video Reference UUID
+  /imagedmoments/windowrequest:
+    post:
+      summary: Find Imaged Moments by window request
+      tags:
+        - ImagedMoment
+      responses:
+        '200':
+          description: Matched Imaged Moments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImagedMoment'
+        '400':
+          description: Only JSON accepted
+      operationId: findImagedMomentsByWindowRequest
+      description: Find Imaged Moments by window request
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: limit
+          description: Maximum number of results
+        - schema:
+            type: integer
+          in: query
+          name: offset
+          description: Number of results to skip from beginning
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WindowRequest'
+        description: Window request
 components:
   securitySchemes:
     BearerAuth:
@@ -2859,3 +3189,21 @@ components:
         description:
           type: string
           example: Annotation Service
+    WindowRequest:
+      title: WindowRequest
+      type: object
+      properties:
+        video_reference_uuids:
+          type: array
+          description: Video Reference UUIDs
+          items:
+            type: string
+            format: uuid
+        imaged_moment_uuid:
+          type: string
+          format: uuid
+          description: Imaged Moment UUID
+        window:
+          type: integer
+          description: Window size in milliseconds
+      description: Window request
