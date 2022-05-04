@@ -11,28 +11,18 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 tags:
-  - name: Developer
-    description: Developer operations
   - name: Analysis
-    description: Analysis operations
   - name: AncillaryDatum
-    description: CachedAncillaryDatum operations
   - name: Annotation
-    description: Annotation operations
-  - name: Image
-    description: Image operations
-  - name: ImagedMoment
-    description: ImagedMoment operations
-  - name: ImageReference
-    description: ImageReference operations
   - name: Association
-    description: Association operations
-  - name: VideoReference
-    description: CachedVideoReferenceInfo operations
-  - name: Observation
-    description: Observation operations
+  - name: Developer
+  - name: Fast
   - name: Health
-    description: Health operations
+  - name: Image
+  - name: ImagedMoment
+  - name: ImageReference
+  - name: Observation
+  - name: VideoReference
 paths:
   /auth:
     post:
@@ -2747,6 +2737,530 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/Annotation'
+  /fast:
+    get:
+      summary: Find all Annotations
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Annotations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Annotation'
+      operationId: findAnnotationsFast
+      description: Find all Annotations using the Fast servlet
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: limit
+          description: 'Maximum number of results (default: 5000)'
+        - schema:
+            type: string
+          in: query
+          name: offset
+          description: Number of results to skip from the beginning
+    post:
+      summary: Find Annotations by Query Constraints
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Query Constraints Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/QueryConstraintsResponse'
+                  - type: object
+                    properties:
+                      content:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Annotation'
+      operationId: findAnnotationsByQueryConstraintsFast
+      description: Find Annotations by Query Constraints using the Fast servlet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryConstraints'
+        description: Query Constraints
+  /fast/georange:
+    post:
+      summary: Find Geographic Range by Query Constraints
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Geographic Range Query Constraints Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/QueryConstraintsResponse'
+                  - type: object
+                    properties:
+                      content:
+                        $ref: '#/components/schemas/GeographicRange'
+      operationId: findGeographicRangeByQueryConstraints
+      description: Find Geographic Range by Query Constraints
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryConstraints'
+  /fast/count:
+    post:
+      summary: Count Annotations by Query Constraints
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Matched Annotation Count Query Constraints Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/QueryConstraintsResponse'
+                  - type: object
+                    properties:
+                      content:
+                        $ref: '#/components/schemas/Count'
+      operationId: countAnnotationsByQueryConstraintsFast
+      description: Count Annotations by Query Constraints using the Fast servlet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryConstraints'
+        description: Query Constraints
+    get:
+      summary: Count all Annotations
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Annotation Count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Count'
+      operationId: countAllAnnotationsFast
+      description: Count all Annotations using the Fast servlet
+      parameters: []
+  '/fast/videoreference/{uuid}':
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: uuid
+        in: path
+        required: true
+        description: Video Reference UUID
+    get:
+      summary: Find Annotations by Video Reference
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Matched Annotations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Annotation'
+        '400':
+          description: A Video Reference UUID parameter is required
+      operationId: findAnnotationsByVideoReferenceFast
+      description: Find Annotations by Video Reference using the Fast servlet
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: limit
+          description: Maximum number of results
+        - schema:
+            type: integer
+          in: query
+          name: offset
+          description: Number of results to skip from beginning
+        - schema:
+            type: boolean
+          in: query
+          name: data
+          description: 'Flag to include ancillary data (default: false)'
+    delete:
+      summary: Delete Annotations by Video Reference
+      operationId: deleteAnnotationsByVideoReferenceFast
+      responses:
+        '200':
+          description: Delete Count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteCount'
+      description: Delete Annotations by Video Reference using the Fast servlet
+      security:
+        - BearerAuth: []
+      tags:
+        - Fast
+  '/fast/images/videoreference/{uuid}':
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: uuid
+        in: path
+        required: true
+        description: Video Reference UUID
+    get:
+      summary: Find Image References by Video Reference
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Matched Image References
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImageReference'
+        '400':
+          description: A Video Reference UUID parameter is required
+      operationId: findImageReferencesByVideoReferenceFast
+      description: Find Image References by Video Reference using the Fast servlet
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: limit
+          description: Maximum number of results
+        - schema:
+            type: integer
+          in: query
+          name: offset
+          description: Number of results to skip from beginning
+  '/fast/concept/{concept}':
+    parameters:
+      - schema:
+          type: string
+        name: concept
+        in: path
+        required: true
+        description: Concept
+    get:
+      summary: Find Annotations by concept
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Matched Annotations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Annotation'
+        '400':
+          description: A concept parameter is required
+      operationId: findAnnotationsByConceptFast
+      description: Find Annotations by concept using the Fast servlet
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: limit
+          description: Maximum number of results
+        - schema:
+            type: integer
+          in: query
+          name: offset
+          description: Number of results to skip from beginning
+        - schema:
+            type: boolean
+          in: query
+          name: data
+          description: 'Flag to include ancillary data (default: false)'
+  '/fast/concept/images/{concept}':
+    parameters:
+      - schema:
+          type: string
+        name: concept
+        in: path
+        required: true
+        description: Concept
+    get:
+      summary: Find Annotations by concept with images
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Matched Annotations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Annotation'
+        '400':
+          description: A concept parameter is required
+      operationId: findAnnotationsByConceptWithImagesFast
+      description: Find Annotations by concept with images using the Fast servlet
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: limit
+          description: Maximum number of results
+        - schema:
+            type: integer
+          in: query
+          name: offset
+          description: Number of results to skip from beginning
+        - schema:
+            type: boolean
+          in: query
+          name: data
+          description: 'Flag to include ancillary data (default: false)'
+  '/fast/toconcept/images/{toconcept}':
+    parameters:
+      - schema:
+          type: string
+        name: toconcept
+        in: path
+        required: true
+        description: To Concept
+    get:
+      summary: Find Annotations by toconcept with images
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Matched Annotations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Annotation'
+        '400':
+          description: A concept parameter is required
+      operationId: findAnnotationsByToConceptWithImagesFast
+      description: Find Annotations by toconcept with images using the Fast servlet
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: limit
+          description: Maximum number of results
+        - schema:
+            type: integer
+          in: query
+          name: offset
+          description: Number of results to skip from beginning
+        - schema:
+            type: boolean
+          in: query
+          name: data
+          description: 'Flag to include ancillary data (default: false)'
+  '/fast/imagedmoments/concept/images/{concept}':
+    parameters:
+      - schema:
+          type: string
+        name: concept
+        in: path
+        required: true
+        description: Concept
+    get:
+      summary: Find Imaged Moments by concept with images
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Matched Imaged Moments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImagedMoment'
+        '400':
+          description: A concept parameter is required
+      operationId: findImagedMomentsByConceptWithImagesFast
+      description: Find Imaged Moments by concept with images using the Fast servlet
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: limit
+          description: Maximum number of results
+        - schema:
+            type: integer
+          in: query
+          name: offset
+          description: Number of results to skip from beginning
+  '/fast/imagedmoments/toconcept/images/{toconcept}':
+    parameters:
+      - schema:
+          type: string
+        name: toconcept
+        in: path
+        required: true
+        description: To Concept
+    get:
+      summary: Find Imaged Moments by toconcept with images
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Matched Imaged Moments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImagedMoment'
+        '400':
+          description: A concept parameter is required
+      operationId: findImagedMomentsByToConceptWithImagesFast
+      description: Find Imaged Moments by toconcept with images using the Fast servlet
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: limit
+          description: Maximum number of results
+        - schema:
+            type: integer
+          in: query
+          name: offset
+          description: Number of results to skip from beginning
+  '/fast/details/{link_name}/{link_value}':
+    parameters:
+      - schema:
+          type: string
+        name: link_name
+        in: path
+        required: true
+        description: Link name
+      - schema:
+          type: string
+        name: link_value
+        in: path
+        required: true
+        description: Link value
+    get:
+      summary: Find Annotations by link name/value
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Matched Annotations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Annotation'
+        '400':
+          description: link\_name and link\_value parameters are required
+      operationId: findAnnotations
+      description: Find Annotations by Association link name and link value
+      parameters:
+        - schema:
+            type: boolean
+          in: query
+          name: data
+          description: 'Flag to include ancillary data (default: false)'
+  /fast/concurrent:
+    post:
+      summary: Find Annotations by Concurrent Request
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Matched Annotations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Annotation'
+        '400':
+          description: JSON body required
+      operationId: findAnnotationsByConcurrentRequestFast
+      description: Find Annotations by Concurrent Request using the Fast servlet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConcurrentRequest'
+        description: Concurrent Request
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: limit
+          description: Maximum number of results
+        - schema:
+            type: integer
+          in: query
+          name: offset
+          description: Number of results to skip from the beginning
+        - schema:
+            type: boolean
+          in: query
+          name: data
+          description: 'Flag to include ancillary data (default: false)'
+  /fast/multi:
+    post:
+      summary: Find Annotations by Multi Request
+      tags:
+        - Fast
+      responses:
+        '200':
+          description: Matched Annotations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Annotation'
+        '400':
+          description: JSON body required
+      operationId: findAnnotationsByMultiRequestFast
+      description: Find Annotations by Multi Request using the Fast servlet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MultiRequest'
+        description: Multi Request
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: limit
+          description: Maximum number of results
+        - schema:
+            type: integer
+          in: query
+          name: offset
+          description: Number of results to skip from the beginning
+        - schema:
+            type: boolean
+          in: query
+          name: data
+          description: 'Flag to include ancillary data (default: false)'
+    parameters: []
 components:
   securitySchemes:
     BearerAuth:
@@ -3392,3 +3906,59 @@ components:
           type: integer
           description: Window size in milliseconds
       description: Window request
+    GeographicRange:
+      title: GeographicRange
+      type: object
+      properties:
+        min_latitude:
+          type: number
+          description: Minimum latitude
+        max_latitude:
+          type: number
+          description: Maximum latitude
+        min_longitude:
+          type: number
+          description: Minimum longitude
+        max_longitude:
+          type: number
+          description: Maximum longitude
+        min_depth_meters:
+          type: number
+          description: 'Minimum depth, in meters'
+        max_depth_meters:
+          type: number
+          description: 'Maximum depth, in meters'
+      description: 'Geographic Range, consisting of minimum and maximum latitude, longitude, and depth'
+    Count:
+      title: Count
+      type: object
+      properties:
+        count:
+          type: integer
+      description: Generic count
+    DeleteCount:
+      title: DeleteCount
+      type: object
+      description: Count of deleted entities
+      properties:
+        video_reference_uuid:
+          type: string
+          description: Video Reference UUID
+        ancillary_data_count:
+          type: integer
+          description: Count of deleted Cached Ancillary Data
+        image_reference_count:
+          type: integer
+          description: Count of deleted Image References
+        association_count:
+          type: integer
+          description: Count of deleted Associations
+        observation_count:
+          type: integer
+          description: Count of deleted Observations
+        imaged_moment_count:
+          type: integer
+          description: Count of deleted Imaged Moments
+        error_message:
+          type: string
+          description: Error message
